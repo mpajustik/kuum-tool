@@ -7,6 +7,7 @@ import { VotePanel } from "../components/VotePanel";
 import { GameControls } from "../components/GameControls";
 import { PlayerList } from "../components/PlayerList";
 import { PlayerStatusList } from "../components/PlayerStatusList";
+import { VoteRevealList } from "../components/VoteRevealList";
 import { LoadingView } from "../components/LoadingView";
 import { getLocalPlayer } from "../hooks/useLocalPlayer";
 import { useGameRealtime } from "../hooks/useGameRealtime";
@@ -20,7 +21,7 @@ import { getNextHotSeatPlayer } from "../logic/getNextHotSeatPlayer";
 import { calculateScores, findWinners } from "../logic/scoring";
 import { questions } from "../data/questions";
 import type { GameRow, PlayerRow, RoundRow, AnswerRow, VoteRow } from "../types/database";
-import type { Player } from "../types/game";
+import type { Answer, Player, Vote } from "../types/game";
 
 function toPlayer(row: PlayerRow): Player {
   return {
@@ -105,6 +106,51 @@ export function GamePage() {
     label: LABELS[index] ?? String(index + 1),
   }));
 
+  const mappedAnswers: Answer[] = answers.map((a) => ({
+    id: a.id,
+    roundId: a.round_id,
+    playerId: a.player_id,
+    answerText: a.answer_text,
+    isHotSeatAnswer: a.is_hot_seat_answer,
+    displayOrder: a.display_order,
+  }));
+  const mappedVotes: Vote[] = votes.map((v) => ({
+    id: v.id,
+    roundId: v.round_id,
+    voterPlayerId: v.voter_player_id,
+    answerId: v.answer_id,
+  }));
+  const scoreChanges = hotSeatPlayer
+    ? calculateScores(players.map(toPlayer), mappedAnswers, mappedVotes, hotSeatPlayer.id)
+    : new Map<string, number>();
+
+  const hotSeatAnswer = hotSeatPlayer ? answers.find((a) => a.player_id === hotSeatPlayer.id) : undefined;
+  const revealItems = hotSeatPlayer
+    ? players.map((player) => {
+        if (player.id === hotSeatPlayer.id) {
+          const ownAnswer = displayAnswers.find((a) => a.id === hotSeatAnswer?.id);
+          return {
+            id: player.id,
+            name: player.name,
+            label: ownAnswer?.label ?? null,
+            answerText: ownAnswer?.answerText ?? null,
+            isHotSeat: true,
+            isCorrect: true,
+          };
+        }
+        const vote = votes.find((v) => v.voter_player_id === player.id);
+        const votedAnswer = vote ? displayAnswers.find((a) => a.id === vote.answer_id) : undefined;
+        return {
+          id: player.id,
+          name: player.name,
+          label: votedAnswer?.label ?? null,
+          answerText: votedAnswer?.answerText ?? null,
+          isHotSeat: false,
+          isCorrect: vote ? vote.answer_id === hotSeatAnswer?.id : false,
+        };
+      })
+    : [];
+
   async function handleAnswerSubmit(answerText: string) {
     if (!me) return;
     await submitAnswer(round!.id, me.id, answerText, isHotSeat);
@@ -134,20 +180,6 @@ export function GamePage() {
         await updateRoundStatus(round!.id, "reveal");
       } else if (round!.status === "reveal") {
         if (hotSeatPlayer) {
-          const scoreChanges = calculateScores(
-            players.map(toPlayer),
-            answers.map((a) => ({
-              id: a.id,
-              roundId: a.round_id,
-              playerId: a.player_id,
-              answerText: a.answer_text,
-              isHotSeatAnswer: a.is_hot_seat_answer,
-              displayOrder: a.display_order,
-            })),
-            votes.map((v) => ({ id: v.id, roundId: v.round_id, voterPlayerId: v.voter_player_id, answerId: v.answer_id })),
-            hotSeatPlayer.id
-          );
-
           await Promise.all(
             players.map((player) => {
               const change = scoreChanges.get(player.id) ?? 0;
@@ -186,7 +218,11 @@ export function GamePage() {
       <Link className="btn btn-secondary" to="/reeglid" state={{ from: "/mang" }}>
         Vaata reegleid
       </Link>
-      <PlayerList players={players.map(toPlayer)} hotSeatPlayerId={round.hot_seat_player_id} />
+      <PlayerList
+        players={players.map(toPlayer)}
+        hotSeatPlayerId={round.hot_seat_player_id}
+        scoreChanges={round.status === "scoring" || round.status === "complete" ? scoreChanges : undefined}
+      />
 
       {round.status === "question" && hotSeatPlayer && (
         <QuestionCard questionText={questionText} hotSeatPlayerName={hotSeatPlayer.name} />
@@ -232,10 +268,16 @@ export function GamePage() {
       )}
 
       {round.status === "reveal" && hotSeatPlayer && (
-        <div className="card">
-          <p className="muted">Õige vastus oli:</p>
-          <p>{answers.find((a) => a.player_id === hotSeatPlayer.id)?.answer_text}</p>
-        </div>
+        <>
+          <div className="card">
+            <p className="muted">Õige vastus oli:</p>
+            <p>{hotSeatAnswer?.answer_text}</p>
+          </div>
+          <div className="card">
+            <p className="muted">Kes mida vastas</p>
+            <VoteRevealList items={revealItems} />
+          </div>
+        </>
       )}
 
       {round.status === "scoring" && <div className="card">Punktid arvutatud.</div>}

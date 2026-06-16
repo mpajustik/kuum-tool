@@ -1,0 +1,137 @@
+:root {
+  --bg: #ffffff;
+  --text: #1a1a1a;
+  --accent: #e63946;
+  --accent-dark: #c1121f;
+  --border: #e5e4e7;
+  --muted: #6b6375;
+
+  font: 18px/1.45 system-ui, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+h1 {
+  font-size: 32px;
+  margin: 16px 0;
+}
+
+h2 {
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+
+p {
+  margin: 0 0 12px;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  padding: 12px 16px;
+}
+
+.btn:hover {
+  background: var(--accent-dark);
+}
+
+.btn:disabled {
+  background: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: var(--text);
+  border: 2px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: #f4f3ec;
+}
+
+.input {
+  width: 100%;
+  min-height: 48px;
+  font-size: 18px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+}
+
+.card {
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.room-code {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-align: center;
+  padding: 12px;
+  border: 2px dashed var(--accent);
+  border-radius: 12px;
+}
+
+ul.player-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+ul.player-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.status-banner {
+  text-align: center;
+  font-weight: 600;
+  color: var(--muted);
+}

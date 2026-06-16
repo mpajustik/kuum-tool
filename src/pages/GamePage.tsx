@@ -255,7 +255,7 @@ export function GamePage() {
             excludeId={hotSeatPlayer.id}
           />
           {isHotSeat ? (
-            <p className="status-banner">Sa ei hääleta selles voorus.</p>
+            <div className="card card-alert">Sa ei hääleta selles voorus.</div>
           ) : myVote ? (
             <div className="card">
               <p>Hääl saadetud.</p>

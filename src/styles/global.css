@@ -136,6 +136,14 @@ ul.player-list li {
   color: var(--muted);
 }
 
+.card-alert {
+  text-align: center;
+  font-weight: 700;
+  color: var(--accent-dark);
+  background: #fdeceb;
+  border-color: var(--accent);
+}
+
 .score-delta-positive {
   color: #1f9d55;
   font-weight: 700;

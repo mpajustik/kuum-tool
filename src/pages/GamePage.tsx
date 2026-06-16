@@ -69,7 +69,7 @@ export function GamePage() {
     refresh();
   }, [local, navigate, refresh]);
 
-  useGameRealtime(local?.gameId ?? null, refresh);
+  useGameRealtime(local?.gameId ?? null, refresh, round?.id ?? null);
 
   useEffect(() => {
     if (round?.id) {
@@ -94,6 +94,11 @@ export function GamePage() {
   const questionText = round.custom_question_text ?? "";
   const myAnswer = answers.find((answer) => answer.player_id === local.playerId);
   const myVote = votes.find((vote) => vote.voter_player_id === local.playerId);
+  const answerProgress = (
+    <p>
+      {answers.length} / {players.length} vastust olemas.
+    </p>
+  );
 
   const sortedAnswers = [...answers].sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
   const displayAnswers = sortedAnswers.map((answer, index) => ({
@@ -191,16 +196,22 @@ export function GamePage() {
           <div className="card">
             <p>Vastus saadetud.</p>
             <p className="muted">Ootame teisi mängijaid.</p>
-            <p>
-              {answers.length} / {players.length} vastust olemas.
-            </p>
+            {answerProgress}
           </div>
         ) : (
-          <AnswerForm
-            questionText={questionText}
-            hotSeatPlayerName={hotSeatPlayer.name}
-            onSubmit={handleAnswerSubmit}
-          />
+          <>
+            {me?.is_host && (
+              <div className="card">
+                <p className="muted">Vastuste seis</p>
+                {answerProgress}
+              </div>
+            )}
+            <AnswerForm
+              questionText={questionText}
+              hotSeatPlayerName={hotSeatPlayer.name}
+              onSubmit={handleAnswerSubmit}
+            />
+          </>
         )
       )}
 

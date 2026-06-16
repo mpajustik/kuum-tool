@@ -30,7 +30,8 @@ export function JoinGamePage() {
       const player = await joinGame(game.id, playerName.trim());
       saveLocalPlayer(game.id, player.id);
       navigate("/lobby");
-    } catch {
+    } catch (err) {
+      console.error("joinGame failed:", err);
       setError("Liitumine ebaõnnestus. Proovi uuesti.");
       setIsSubmitting(false);
     }

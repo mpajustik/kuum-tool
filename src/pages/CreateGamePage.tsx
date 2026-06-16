@@ -20,7 +20,8 @@ export function CreateGamePage() {
       const { game, host } = await createGame(hostName.trim());
       saveLocalPlayer(game.id, host.id);
       navigate("/lobby");
-    } catch {
+    } catch (err) {
+      console.error("createGame failed:", err);
       setError("Mängu loomine ebaõnnestus. Proovi uuesti.");
       setIsSubmitting(false);
     }

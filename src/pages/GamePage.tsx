@@ -6,6 +6,7 @@ import { AnswerList } from "../components/AnswerList";
 import { VotePanel } from "../components/VotePanel";
 import { GameControls } from "../components/GameControls";
 import { PlayerList } from "../components/PlayerList";
+import { PlayerStatusList } from "../components/PlayerStatusList";
 import { LoadingView } from "../components/LoadingView";
 import { getLocalPlayer } from "../hooks/useLocalPlayer";
 import { useGameRealtime } from "../hooks/useGameRealtime";
@@ -94,11 +95,8 @@ export function GamePage() {
   const questionText = round.custom_question_text ?? "";
   const myAnswer = answers.find((answer) => answer.player_id === local.playerId);
   const myVote = votes.find((vote) => vote.voter_player_id === local.playerId);
-  const answerProgress = (
-    <p>
-      {answers.length} / {players.length} vastust olemas.
-    </p>
-  );
+  const answeredIds = new Set(answers.map((answer) => answer.player_id));
+  const votedIds = new Set(votes.map((vote) => vote.voter_player_id));
 
   const sortedAnswers = [...answers].sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
   const displayAnswers = sortedAnswers.map((answer, index) => ({
@@ -192,42 +190,42 @@ export function GamePage() {
       )}
 
       {round.status === "answering" && hotSeatPlayer && (
-        myAnswer ? (
-          <div className="card">
-            <p>Vastus saadetud.</p>
-            <p className="muted">Ootame teisi mängijaid.</p>
-            {answerProgress}
-          </div>
-        ) : (
-          <>
-            {me?.is_host && (
-              <div className="card">
-                <p className="muted">Vastuste seis</p>
-                {answerProgress}
-              </div>
-            )}
-            <AnswerForm
-              questionText={questionText}
-              hotSeatPlayerName={hotSeatPlayer.name}
-              onSubmit={handleAnswerSubmit}
-            />
-          </>
-        )
+        <>
+          <QuestionCard questionText={questionText} hotSeatPlayerName={hotSeatPlayer.name} />
+          <PlayerStatusList title="Kes on vastanud" players={players.map(toPlayer)} doneIds={answeredIds} />
+          {myAnswer ? (
+            <div className="card">
+              <p>Vastus saadetud.</p>
+              <p className="muted">Ootame teisi mängijaid.</p>
+            </div>
+          ) : (
+            <AnswerForm hotSeatPlayerName={hotSeatPlayer.name} onSubmit={handleAnswerSubmit} />
+          )}
+        </>
       )}
 
       {round.status === "reading" && <AnswerList answers={displayAnswers} />}
 
       {round.status === "voting" && hotSeatPlayer && (
-        isHotSeat ? (
-          <p className="status-banner">Sa ei hääleta selles voorus.</p>
-        ) : myVote ? (
-          <div className="card">
-            <p>Hääl saadetud.</p>
-            <p className="muted">Ootame teisi.</p>
-          </div>
-        ) : (
-          <VotePanel hotSeatPlayerName={hotSeatPlayer.name} options={displayAnswers} onVote={handleVote} />
-        )
+        <>
+          <QuestionCard questionText={questionText} hotSeatPlayerName={hotSeatPlayer.name} />
+          <PlayerStatusList
+            title="Kes on hääletanud"
+            players={players.map(toPlayer)}
+            doneIds={votedIds}
+            excludeId={hotSeatPlayer.id}
+          />
+          {isHotSeat ? (
+            <p className="status-banner">Sa ei hääleta selles voorus.</p>
+          ) : myVote ? (
+            <div className="card">
+              <p>Hääl saadetud.</p>
+              <p className="muted">Ootame teisi.</p>
+            </div>
+          ) : (
+            <VotePanel hotSeatPlayerName={hotSeatPlayer.name} options={displayAnswers} onVote={handleVote} />
+          )}
+        </>
       )}
 
       {round.status === "reveal" && hotSeatPlayer && (

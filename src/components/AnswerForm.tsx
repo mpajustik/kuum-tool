@@ -1,13 +1,12 @@
 import { useState } from "react";
 
 interface AnswerFormProps {
-  questionText: string;
   hotSeatPlayerName: string;
   onSubmit: (answerText: string) => void;
   disabled?: boolean;
 }
 
-export function AnswerForm({ questionText, hotSeatPlayerName, onSubmit, disabled }: AnswerFormProps) {
+export function AnswerForm({ hotSeatPlayerName, onSubmit, disabled }: AnswerFormProps) {
   const [answerText, setAnswerText] = useState("");
 
   function handleSubmit(event: React.FormEvent) {
@@ -19,7 +18,6 @@ export function AnswerForm({ questionText, hotSeatPlayerName, onSubmit, disabled
   return (
     <form className="page" onSubmit={handleSubmit}>
       <p className="muted">Vasta {hotSeatPlayerName} vaatenurgast</p>
-      <p>{questionText}</p>
       <textarea
         className="input"
         rows={3}

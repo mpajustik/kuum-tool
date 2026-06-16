@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { QuestionCard } from "../components/QuestionCard";
 import { AnswerForm } from "../components/AnswerForm";
 import { AnswerList } from "../components/AnswerList";
@@ -183,6 +183,9 @@ export function GamePage() {
       <p className="muted">
         Voor {round.round_number} · Kuumal toolil: {hotSeatPlayer?.name ?? "?"}
       </p>
+      <Link className="btn btn-secondary" to="/reeglid" state={{ from: "/mang" }}>
+        Vaata reegleid
+      </Link>
       <PlayerList players={players.map(toPlayer)} hotSeatPlayerId={round.hot_seat_player_id} />
 
       {round.status === "question" && hotSeatPlayer && (

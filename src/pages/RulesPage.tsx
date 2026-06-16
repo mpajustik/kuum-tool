@@ -1,6 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export function RulesPage() {
+  const location = useLocation();
+  const backTo = location.state?.from ?? "/";
+  const backLabel = backTo === "/mang" ? "Tagasi mängu" : "Tagasi avalehele";
+
   return (
     <div className="page">
       <h1>Mängu reeglid</h1>
@@ -14,8 +18,8 @@ export function RulesPage() {
         antud hääle eest.
       </p>
       <p>Mäng lõppeb, kui mängija jõuab sihtskoorini (vaikimisi 21 punkti).</p>
-      <Link className="btn" to="/">
-        Tagasi avalehele
+      <Link className="btn" to={backTo}>
+        {backLabel}
       </Link>
     </div>
   );
